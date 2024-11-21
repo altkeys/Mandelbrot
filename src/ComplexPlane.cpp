@@ -31,8 +31,6 @@ void ComplexPlane::load_text(sf::Text& text) {}
 
 void ComplexPlane::update_renderer() {}
 
-sf::Vector2f ComplexPlane::get_coords(sf::Vector2i mouse_pixel) { return map_pixels_to_coords(mouse_pixel); }
-
 /* Private Functions */
 
 int ComplexPlane::count_iterations(sf::Vector2f coord) {}
