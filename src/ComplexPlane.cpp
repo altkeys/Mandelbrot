@@ -12,28 +12,66 @@ ComplexPlane::ComplexPlane(int pixelWidth, int pixelHeight) {
 }
 
 void ComplexPlane::zoom_in() {
+    m_zoomCount++;
 
+    float x = BASE_WIDTH * (std::pow(BASE_ZOOM, m_zoomCount)),
+          y = BASE_HEIGHT * m_aspectRatio * (std::pow(BASE_HEIGHT, m_zoomCount));
+
+    m_plane_size = { x, y };
+    m_State = State::CALCULATING;
 }
 
 void ComplexPlane::zoom_out() {
+    m_zoomCount--;
 
+    float x = BASE_WIDTH * (std::pow(BASE_ZOOM, m_zoomCount)),
+          y = BASE_HEIGHT * m_aspectRatio * (std::pow(BASE_HEIGHT, m_zoomCount));
+
+    m_plane_size = { x, y };
+    m_State = State::CALCULATING;
 }
 
 void ComplexPlane::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     target.draw(m_vArray);
 }
 
-void ComplexPlane::set_center(sf::Vector2i mousePixel) {}
+void ComplexPlane::set_center(sf::Vector2i mousePixel) {
+    m_plane_center = map_pixels_to_coords(mousePixel);
+    m_State = State::CALCULATING;
+}
 
-void ComplexPlane::set_mouse_location(sf::Vector2i mousePixel) {}
+void ComplexPlane::set_mouse_location(sf::Vector2i mousePixel) {
+    m_mouseLocation = map_pixels_to_coords(mousePixel);
+}
 
-void ComplexPlane::load_text(sf::Text& text) {}
+void ComplexPlane::load_text(sf::Text& text) {
+    std::ostringstream str;
+    str << "Mandelbrot Set" << std::endl
+        << "Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")" << std::endl
+        << "Cursor: (" << m_mouseLocation.x << ", " << m_mouseLocation.y << ")" << std::endl
+        << "Left-click to zoom in" << std::endl
+        << "Right-click to zoom out" << std::endl;
+
+    text.setString(str.str());
+}
 
 void ComplexPlane::update_renderer() {}
 
 /* Private Functions */
 
-int ComplexPlane::count_iterations(sf::Vector2f coord) {}
+int ComplexPlane::count_iterations(sf::Vector2f coord) {
+    std::complex<float> c(coord.x, coord.y);
+    std::complex<float> z(0, 0);
+
+    size_t iterations = 0;
+    while (std::abs(z) < 2 && iterations < MAX_ITER) {
+        z = z * z + c;
+        iterations++;
+    }
+
+    // if iterations > 63 then the point escaped
+    return iterations;
+}
 
 void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {}
 
