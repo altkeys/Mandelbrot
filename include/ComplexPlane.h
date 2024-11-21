@@ -21,7 +21,6 @@ class ComplexPlane : public sf::Drawable {
         void set_mouse_location(sf::Vector2i mousePixel);
         void load_text(sf::Text& text);
         void update_renderer();
-        sf::Vector2f get_coords(sf::Vector2i mouse_pixel);
     
     private:
         sf::VertexArray m_vArray;
