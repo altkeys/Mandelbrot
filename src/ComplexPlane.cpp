@@ -55,7 +55,24 @@ void ComplexPlane::load_text(sf::Text& text) {
     text.setString(str.str());
 }
 
-void ComplexPlane::update_renderer() {}
+void ComplexPlane::update_renderer() {
+    int height = m_mousePixel.y, width = m_mousePixel.x;
+    if (m_State == State::CALCULATING) {
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                m_vArray[j + i * height ].position = { (float)j, float(i) };
+                sf::Vector2f coordinate = map_pixel_to_coords({ j, i });
+                sf::Uint8 r, g, b;
+                size_t iterations = count_iterations(coordinate);
+
+                iterations_to_rgb(iterations, r, g, b);
+                m_vArray[j + i * height].color = { r, g, b };
+            }
+        }
+
+        m_State = State::DISPLAYING;
+    }
+}
 
 /* Private Functions */
 
@@ -73,7 +90,13 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
     return iterations;
 }
 
-void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {}
+void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {
+    if (count < 63) {
+        r = 255, g = 255, b = 255;
+    } else {
+        r = 0, g = 0; b = 0;
+    }
+}
 
 sf::Vector2f ComplexPlane::map_pixels_to_coords(sf::Vector2i mousePixel) {
     float x_offset = (m_plane_center.x - m_plane_size.x) / 2.0f,
