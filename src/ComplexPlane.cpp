@@ -55,22 +55,18 @@ void ComplexPlane::load_text(sf::Text& text) {
     text.setString(str.str());
 }
 
-void ComplexPlane::update_renderer() {
-    int height = m_pixel_size.y, width = m_pixel_size.x;
-    if (m_State == State::CALCULATING) {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                m_vArray[j + i * width ].position = { (float)j, float(i) };
-                sf::Vector2f coordinate = map_pixels_to_coords({ j, i });
-                sf::Uint8 r, g, b;
-                size_t iterations = count_iterations(coordinate);
+void ComplexPlane::update_render(int start_row, int end_row) {
+    int width = m_pixel_size.x;
+    for (int i = start_row; i < end_row; i++) {
+        for (int j = 0; j < width; j++) {
+            m_vArray[j + i * width ].position = { (float)j, float(i) };
+            sf::Vector2f coordinate = map_pixels_to_coords({ j, i });
+            sf::Uint8 r, g, b;
+            size_t iterations = count_iterations(coordinate);
 
-                iterations_to_rgb(iterations, r, g, b);
-                m_vArray[j + i * width].color = { r, g, b };
-            }
+            iterations_to_rgb(iterations, r, g, b);
+            m_vArray[j + i * width].color = { r, g, b };
         }
-
-        m_State = State::DISPLAYING;
     }
 }
 

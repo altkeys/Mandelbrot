@@ -7,7 +7,7 @@
 #include <thread>
 #include <cmath>
 
-const unsigned int MAX_ITER = 64;
+const unsigned int MAX_ITER = 65536;
 const float BASE_WIDTH = 4.0;
 const float BASE_HEIGHT = 4.0;
 const float BASE_ZOOM = 0.5;
@@ -23,7 +23,10 @@ class ComplexPlane : public sf::Drawable {
         void set_center(sf::Vector2i mousePixel);
         void set_mouse_location(sf::Vector2i mousePixel);
         void load_text(sf::Text& text);
-        void update_renderer();
+        void update_render(int start_row, int end_row);
+
+        State get_state() const { return m_State; }
+        void set_state(State state) { m_State = state; }
     
     private:
         sf::VertexArray m_vArray;

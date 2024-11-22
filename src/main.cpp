@@ -1,5 +1,7 @@
 #include "../include/ComplexPlane.h"
 #include <iostream>
+#include <vector>
+#include <thread>
 
 int main() {
     int pixel_width = sf::VideoMode::getDesktopMode().width,
@@ -23,6 +25,9 @@ int main() {
     text.setFillColor(sf::Color::Black);
     text.setStyle(sf::Text::Bold);
 
+    std::vector<std::thread> threads;
+    int chunk_height = pixel_height / 4;
+
     while (window.isOpen()) {
         sf::Event event;
 
@@ -43,7 +48,31 @@ int main() {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { window.close(); }
         }
 
-        plot.update_renderer();
+        /* 
+         * Splits the screen into 4 chunks along the vertical axis to speed up rendering.
+         *
+         * Does not need a mutex lock since each thread will be accessing a different area of
+         * plot.m_vArray and therefore will not overlap.
+         *
+         */
+        if (plot.get_state() == State::CALCULATING) {
+            for (int i = 0; i < 4; i++) {
+                int start_row = i * chunk_height,
+                    end_row   = (i + 1) * chunk_height;
+                threads.emplace_back(&ComplexPlane::update_render, &plot, start_row, end_row);
+            }
+
+            for (std::thread& thread : threads) {
+                if (thread.joinable()) { thread.join(); }
+                std::cout << "Dispatched thread." << std::endl;
+            }
+            std::cout << std::endl;
+
+            threads.clear();
+            plot.set_state(State::DISPLAYING);
+        }
+
+        //plot.update_renderer();
         plot.load_text(text);
 
         window.clear();
