@@ -50,13 +50,7 @@ void ComplexPlane::load_text(sf::Text& text) {
     str << "[Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")]" << std::endl
         << "[Cursor: (" << m_mouseLocation.x << ", " << m_mouseLocation.y << ")]" << std::endl
         << "Left-click to zoom in, right-click to zoom out." << std::endl;
-
-    /*str << "Mandelbrot Set" << std::endl
-        << "Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")" << std::endl
-        << "Cursor: (" << m_mouseLocation.x << ", " << m_mouseLocation.y << ")" << std::endl
-        << "Left-click to zoom in" << std::endl
-        << "Right-click to zoom out" << std::endl;
-    */
+    
     text.setString(str.str());
 }
 
@@ -93,6 +87,10 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
 void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {
 
     if (count == MAX_ITER) { r = 0, g = 0, b = 0; }
+    else if (count < 5) {
+        /* Kinda weird how just adding 5 to r, g, b makes it so much more different than just black */
+        r = 5, g = 5, b = 5;
+    }
     else {
         float norm = static_cast<float>(count) / MAX_ITER;
         r = 255 * norm, g = 255 * norm, b = 255 * norm;

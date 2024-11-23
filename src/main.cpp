@@ -49,10 +49,10 @@ int main() {
         }
 
         /* 
-         * Splits the screen into 4 chunks along the vertical axis to speed up rendering.
+         * Splits the screen into amount_threads chunks along the vertical axis to speed up rendering.
          *
          * Does not need a mutex lock since each thread will be accessing a different area of
-         * plot.m_vArray and therefore will not overlap.
+         * plot.m_vArray and therefore will not cause a race condition.
          *
          */
         if (plot.get_state() == State::CALCULATING) {
