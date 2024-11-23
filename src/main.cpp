@@ -16,13 +16,12 @@ int main() {
 
     if (!font.loadFromFile("./FiraSans-Regular.ttf")) {
         std::cout << "Failed to load font file, aborting program..." << std::endl;
-        //return -1;
+        return -1;
     }
 
     text.setFont(font);
-    text.setCharacterSize(30);
-    text.setPosition(pixel_width/17.0f, pixel_height/11.5f);
-    text.setFillColor(sf::Color::Black);
+    text.setCharacterSize(20);
+    text.setFillColor(sf::Color::White);
     text.setStyle(sf::Text::Bold);
 
     std::vector<std::thread> threads;
@@ -65,17 +64,13 @@ int main() {
 
             for (std::thread& thread : threads) {
                 if (thread.joinable()) { thread.join(); }
-                std::cout << "Dispatched thread." << std::endl;
             }
-            std::cout << std::endl;
 
             threads.clear();
             
-            //plot.update_render(0, pixel_height);
             plot.set_state(State::DISPLAYING);
         }
 
-        //plot.update_renderer();
         plot.load_text(text);
 
         window.clear();

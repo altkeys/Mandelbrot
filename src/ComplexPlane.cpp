@@ -46,12 +46,17 @@ void ComplexPlane::set_mouse_location(sf::Vector2i mousePixel) {
 
 void ComplexPlane::load_text(sf::Text& text) {
     std::ostringstream str;
-    str << "Mandelbrot Set" << std::endl
+
+    str << "[Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")]" << std::endl
+        << "[Cursor: (" << m_mouseLocation.x << ", " << m_mouseLocation.y << ")]" << std::endl
+        << "Left-click to zoom in, right-click to zoom out." << std::endl;
+
+    /*str << "Mandelbrot Set" << std::endl
         << "Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")" << std::endl
         << "Cursor: (" << m_mouseLocation.x << ", " << m_mouseLocation.y << ")" << std::endl
         << "Left-click to zoom in" << std::endl
         << "Right-click to zoom out" << std::endl;
-
+    */
     text.setString(str.str());
 }
 
@@ -82,15 +87,15 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
         iterations++;
     }
 
-    // if iterations > 63 then the point escaped
     return iterations;
 }
 
 void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {
-    if (count == MAX_ITER) {
-        r = 0, g = 0, b = 0;
-    } else {
-        r = 255, g = 255, b = 255;
+
+    if (count == MAX_ITER) { r = 0, g = 0, b = 0; }
+    else {
+        float norm = static_cast<float>(count) / MAX_ITER;
+        r = 255 * norm, g = 255 * norm, b = 255 * norm;
     }
 }
 
