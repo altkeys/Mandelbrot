@@ -76,7 +76,12 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
     std::complex<double> z(0, 0);
 
     size_t iterations = 0;
-    while (std::abs(z) <= 2 && iterations < MAX_ITER) {
+    
+    /* 
+     * std::norm beats out std::abs by 100-300ms at 196 iterations and by larger
+     * amounts at higher iterations.
+     */
+    while (std::norm(z) <= 4 && iterations < MAX_ITER) {
         z = z * z + c;
         iterations++;
     }
@@ -103,4 +108,3 @@ sf::Vector2f ComplexPlane::map_pixels_to_coords(sf::Vector2i mousePixel) {
     return mapped;
 
 }
-
