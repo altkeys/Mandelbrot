@@ -4,10 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <sstream>
 #include <complex>
-#include <thread>
 #include <cmath>
 
-const unsigned int MAX_ITER = 65536;
+const unsigned int MAX_ITER = 196;
 const float BASE_WIDTH = 4.0;
 const float BASE_HEIGHT = 4.0;
 const float BASE_ZOOM = 0.5;

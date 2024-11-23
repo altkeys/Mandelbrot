@@ -26,7 +26,8 @@ int main() {
     text.setStyle(sf::Text::Bold);
 
     std::vector<std::thread> threads;
-    int chunk_height = pixel_height / 4;
+    int amount_threads = std::thread::hardware_concurrency();
+    int chunk_height = pixel_height / amount_threads;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -56,7 +57,7 @@ int main() {
          *
          */
         if (plot.get_state() == State::CALCULATING) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < amount_threads; i++) {
                 int start_row = i * chunk_height,
                     end_row   = (i + 1) * chunk_height;
                 threads.emplace_back(&ComplexPlane::update_render, &plot, start_row, end_row);
@@ -69,6 +70,8 @@ int main() {
             std::cout << std::endl;
 
             threads.clear();
+            
+            //plot.update_render(0, pixel_height);
             plot.set_state(State::DISPLAYING);
         }
 

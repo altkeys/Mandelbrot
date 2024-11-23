@@ -87,7 +87,7 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
 }
 
 void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {
-    if (count >= MAX_ITER) {
+    if (count == MAX_ITER) {
         r = 0, g = 0, b = 0;
     } else {
         r = 255, g = 255, b = 255;
