@@ -2,80 +2,80 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <chrono>
 
 int main() {
-    int pixel_width = sf::VideoMode::getDesktopMode().width,
-        pixel_height = sf::VideoMode::getDesktopMode().height;
+    int screen_width  = sf::VideoMode::getDesktopMode().width,
+        screen_height = sf::VideoMode::getDesktopMode().height;
 
-    sf::VideoMode video(pixel_width, pixel_height);
-    sf::RenderWindow window(video, "Mandelbrot", sf::Style::Default);
-    ComplexPlane plot(pixel_width, pixel_height);
+    ComplexPlane plot(screen_width, screen_height);
+    sf::VideoMode video(screen_width, screen_height);
+    sf::RenderWindow window(video, "Mandelbrot Set",  sf::Style::Default);
 
-    sf::Text text;
     sf::Font font;
-
     if (!font.loadFromFile("./FiraSans-Regular.ttf")) {
         std::cout << "Failed to load font file, aborting program..." << std::endl;
         return -1;
     }
+    sf::Text text("", font, 25);
 
-    text.setFont(font);
-    text.setCharacterSize(20);
-    text.setFillColor(sf::Color::White);
-    text.setStyle(sf::Text::Bold);
+    /* Configure multithreading */
+    std::vector<std::thread> thread_pool;
+    int available_cores = std::thread::hardware_concurrency(),
+        chunk_height    = screen_height / available_cores;
 
-    std::vector<std::thread> threads;
-    int amount_threads = std::thread::hardware_concurrency();
-    int chunk_height = pixel_height / amount_threads;
+    bool display_text = true;
 
     while (window.isOpen()) {
         sf::Event event;
 
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) { window.close(); }
-            else if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    plot.zoom_in();
-                    plot.set_center({ event.mouseButton.x, event.mouseButton.y });
-                } else if (event.mouseButton.button == sf::Mouse::Right) {
-                    plot.zoom_out();
-                    plot.set_center({ event.mouseButton.x, event.mouseButton.y });
-                }
-            } else if (event.type == sf::Event::MouseMoved) {
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+                plot.set_center({ event.mouseButton.x, event.mouseButton.y });
+                if (event.mouseButton.button == sf::Mouse::Left) { plot.zoom_in(); } 
+                else { plot.zoom_out(); }
+            } 
+            else if (event.type == sf::Event::MouseMoved) {
                 plot.set_mouse_location({ event.mouseMove.x, event.mouseMove.y });
+            }
+            else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::T) {
+                display_text = !display_text;
             }
 
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) { window.close(); }
         }
 
-        /* 
-         * Splits the screen into amount_threads chunks along the vertical axis to speed up rendering.
+        /*
+         * Splits the screen into available_cores chunks along the vertical axis to speed up rendering.
          *
-         * Does not need a mutex lock since each thread will be accessing a different area of
-         * plot.m_vArray and therefore will not cause a race condition.
-         *
+         * Since each thread focuses on its own chunk of plot.m_vArray, there is no race condition and
+         * therefore does not need a mutex lock.
          */
         if (plot.get_state() == State::CALCULATING) {
-            for (int i = 0; i < amount_threads; i++) {
-                int start_row = i * chunk_height,
-                    end_row   = (i + 1) * chunk_height;
-                threads.emplace_back(&ComplexPlane::update_render, &plot, start_row, end_row);
+            for (int i = 0; i < available_cores; i++) {
+                int starting_row = i * chunk_height,
+                    ending_row   = (i + 1) * chunk_height;
+
+                thread_pool.emplace_back(&ComplexPlane::update_render, &plot, starting_row, ending_row);
             }
 
-            for (std::thread& thread : threads) {
+            for (std::thread& thread : thread_pool) {
                 if (thread.joinable()) { thread.join(); }
             }
 
-            threads.clear();
-            
             plot.set_state(State::DISPLAYING);
         }
 
-        plot.load_text(text);
-
         window.clear();
         window.draw(plot);
-        window.draw(text);
+
+        if (display_text) {
+            plot.load_text(text);
+            window.draw(text);
+        }
+
         window.display();
     }
 

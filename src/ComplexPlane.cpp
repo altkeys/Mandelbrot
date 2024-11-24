@@ -76,7 +76,7 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
     std::complex<double> z(0, 0);
 
     size_t iterations = 0;
-    
+
     /* 
      * std::norm beats out std::abs by 100-300ms at 196 iterations and by larger
      * amounts at higher iterations.
@@ -92,6 +92,7 @@ int ComplexPlane::count_iterations(sf::Vector2f coord) {
 void ComplexPlane::iterations_to_rgb(size_t count, sf::Uint8& r, sf::Uint8& g, sf::Uint8& b) {
 
     if (count == MAX_ITER) { r = 0, g = 0, b = 0; }
+    else if (count < 5) { r = 5, g = 5, b = 5;}
     else {
         float norm = static_cast<float>(count) / MAX_ITER;
         r = 255 * norm, g = 255 * norm, b = 255 * norm;
