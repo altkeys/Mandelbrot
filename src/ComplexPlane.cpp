@@ -49,7 +49,8 @@ void ComplexPlane::load_text(sf::Text& text) {
 
     str << "[Center: (" << m_plane_center.x << ", " << m_plane_center.y << ")]" << std::endl
         << "[Cursor: (" << m_mouseLocation.x << ", " << m_mouseLocation.y << ")]" << std::endl
-        << "Left-click to zoom in, right-click to zoom out." << std::endl;
+        << "Left-click to zoom in, right-click to zoom out." << std::endl
+        << "Press 'T' to hide this text." << std::endl;
     
     text.setString(str.str());
 }
