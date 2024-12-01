@@ -64,7 +64,8 @@ int main() {
             for (std::thread& thread : thread_pool) {
                 if (thread.joinable()) { thread.join(); }
             }
-
+            
+            thread_pool.clear();
             plot.set_state(State::DISPLAYING);
         }
 
